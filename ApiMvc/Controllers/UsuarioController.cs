@@ -14,13 +14,20 @@ namespace ApiMvc.Controllers
         [Route("")]
         public IActionResult CreateUsuario([FromServices] IOptions<ConnectionStringOptions> options, Usuario usuario)
         {
+            bool usuarioExiste = VerificarUsuarioExistente(options, usuario.cpf, usuario.email);
+
+            if (usuarioExiste)
+            {
+                return BadRequest("O usuario ja existe com esse cpf e email.");
+            }
+
             using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
             {
                 connection.Open();
 
                 SqlCommand command = new SqlCommand();
                 command.Connection = connection;
-                command.CommandText = @"insert into Usuarios (name, cpf, email, password, birthday) values(@name, @cpf, @email, @password, @birthday)";
+                command.CommandText = @"insert into Users (name, cpf, email, password, birthday) values(@name, @cpf, @email, @password, @birthday)";
                 command.CommandType = System.Data.CommandType.Text;
 
                 command.Parameters.Add(new SqlParameter("name", usuario.name));
@@ -39,7 +46,7 @@ namespace ApiMvc.Controllers
 
         [HttpGet]
         [Route("{idUsuario}")]
-        public IActionResult GetUsuario([FromServices] IOptions<ConnectionStringOptions> options, [FromQuery] int idUsuario)
+        public IActionResult GetUsuarioById([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idUsuario)
         {
             Usuario usuario = null;
 
@@ -52,7 +59,7 @@ namespace ApiMvc.Controllers
                 command.CommandText = @"select * from Users where id = @idUsuario";
                 command.CommandType = System.Data.CommandType.Text;
 
-                command.Parameters.Add(new SqlParameter("id", idUsuario));
+                command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
 
                 using (SqlDataReader dr = command.ExecuteReader())
                 {
@@ -60,19 +67,91 @@ namespace ApiMvc.Controllers
                     {
                         usuario = new Usuario()
                         {
-                            name = dr.GetString(0),
-                            cpf = dr.GetString(1),
-                            email = dr.GetString(2),
-                            password = dr.GetString(3),
-                            birthday = dr.GetDateTime(4),
+                            id = dr.GetInt32(dr.GetOrdinal("id")),
+                            name = dr["name"] as string,
+                            cpf = dr["cpf"] as string,
+                            email = dr["email"] as string,
+                            password = dr["password"] as string,
+                            birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue
                         };
                     }
                 }
 
-                    connection.Close();
+                connection.Close();
+            }
+
+            if (usuario == null)
+            {
+                return NotFound();
             }
 
             return Ok(usuario);
+        }
+
+        /*public IActionResult GetUsuarioByCpf(IOptions<ConnectionStringOptions> options, string cpfUsuario)
+        {
+            Usuario usuario = null;
+
+            using (SqlConnection connection = new(options.Value.MyConnection))
+            {
+                connection.Open();
+
+                SqlCommand command = new SqlCommand();
+                command.Connection = connection;
+                command.CommandText = @"select * from Users where cpf = @cpfUsuario"; ;
+                command.CommandType = System.Data.CommandType.Text;
+
+                command.Parameters.Add(new SqlParameter("cpfUsuario", cpfUsuario));
+
+                using (SqlDataReader dr = command.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        usuario = new Usuario()
+                        {
+                            id = dr.GetInt32(dr.GetOrdinal("id")),
+                            name = dr["name"] as string,
+                            cpf = dr["cpf"] as string,
+                            email = dr["email"] as string,
+                            password = dr["password"] as string,
+                            birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue
+                        };
+                    }
+                }
+
+                connection.Close();
+            }
+
+            if (usuario == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(usuario);
+        }*/
+
+        private bool VerificarUsuarioExistente(IOptions<ConnectionStringOptions> options, string CPF, string Email)
+        {
+            using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
+            {
+                connection.Open();
+
+                Usuario usuario = new Usuario();
+
+                SqlCommand command = new SqlCommand();
+                command.Connection = connection;
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = @"select Id from Users where cpf = @CPF or email = @Email";
+
+                command.Parameters.Add(new SqlParameter("Email", Email));
+                command.Parameters.Add(new SqlParameter("CPF", CPF));
+
+                int? id = (int?)command.ExecuteScalar();
+
+
+                return id != null;
+
+            }
         }
     }
 }
