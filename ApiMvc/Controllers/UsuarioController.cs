@@ -88,7 +88,9 @@ namespace ApiMvc.Controllers
             return Ok(usuario);
         }
 
-        /*public IActionResult GetUsuarioByCpf(IOptions<ConnectionStringOptions> options, string cpfUsuario)
+        [HttpGet]
+        [Route("findByCpf/{cpfUsuario}")]
+        public IActionResult GetUsuarioByCpf([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string cpfUsuario)
         {
             Usuario usuario = null;
 
@@ -98,10 +100,10 @@ namespace ApiMvc.Controllers
 
                 SqlCommand command = new SqlCommand();
                 command.Connection = connection;
-                command.CommandText = @"select * from Users where cpf = @cpfUsuario"; ;
+                command.CommandText = @"select * from Users where cpf = @cpfUsuario";
                 command.CommandType = System.Data.CommandType.Text;
 
-                command.Parameters.Add(new SqlParameter("cpfUsuario", cpfUsuario));
+                command.Parameters.Add(new SqlParameter("@cpfUsuario", cpfUsuario));
 
                 using (SqlDataReader dr = command.ExecuteReader())
                 {
@@ -128,7 +130,28 @@ namespace ApiMvc.Controllers
             }
 
             return Ok(usuario);
-        }*/
+        }
+
+        [HttpDelete]
+        [Route("{idUsuario}")]
+
+        public IActionResult DeleteUsuario([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idUsuario)
+        {
+            using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
+            {
+                connection.Open();
+
+                SqlCommand command = new();
+                command.Connection = connection;
+                command.CommandText = @"delete from Users where id = @idUsuario";
+
+                command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
+
+                command.ExecuteNonQuery();
+            }
+
+            return Ok();
+        }
 
         private bool VerificarUsuarioExistente(IOptions<ConnectionStringOptions> options, string CPF, string Email)
         {
