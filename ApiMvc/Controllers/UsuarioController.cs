@@ -153,6 +153,31 @@ namespace ApiMvc.Controllers
             return Ok();
         }
 
+        [HttpPut]
+        [Route("{idUsuario}")]
+        public IActionResult PutUsuario([FromServices] IOptions<ConnectionStringOptions> options, [FromBody] Usuario usuario, [FromRoute] int idUsuario)
+        {
+            using (SqlConnection connection = new(options.Value.MyConnection))
+            {
+                connection.Open();
+
+                SqlCommand command = new();
+                command.Connection = connection;
+                command.CommandText = @"update Users set name = @name, cpf = @cpf, email = @email, password = @password, birthday = @birthday where id = @idUsuario";
+                command.Parameters.Add(new SqlParameter("name", usuario.name));
+                command.Parameters.Add(new SqlParameter("cpf", usuario.cpf));
+                command.Parameters.Add(new SqlParameter("email", usuario.email));
+                command.Parameters.Add(new SqlParameter("password", usuario.password));
+                command.Parameters.Add(new SqlParameter("birthday", usuario.birthday));
+                command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
+                command.ExecuteNonQuery();
+
+                connection.Close();
+            }
+
+            return Ok();
+        }
+
         private bool VerificarUsuarioExistente(IOptions<ConnectionStringOptions> options, string CPF, string Email)
         {
             using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
