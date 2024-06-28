@@ -2,6 +2,7 @@
 {
     public class ConnectionStringOptions
     {
-        public string MyConnection { get; set; }
+        public string MyConnectionLTA { get; set; }
+        public string MyConnectionHome { get; set; }
     }
 }
