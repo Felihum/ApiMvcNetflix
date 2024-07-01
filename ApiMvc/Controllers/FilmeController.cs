@@ -16,7 +16,7 @@ namespace ApiMvc.Controllers
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
                 {
                     await connection.OpenAsync();
 
@@ -54,7 +54,7 @@ namespace ApiMvc.Controllers
             {
                 List<Filme> filmes = new List<Filme>();
 
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
                 {
                     await connection.OpenAsync();
 
@@ -90,13 +90,59 @@ namespace ApiMvc.Controllers
             }
         }
 
+        [HttpGet("{title}")]
+        public async Task<IActionResult> GetFilmeByTitle([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string title)
+        {
+            try
+            {
+                Filme filme = null;
+
+                using (SqlConnection connection = new(options.Value.MyConnection))
+                {
+                    await connection.OpenAsync();
+
+                    SqlCommand command = connection.CreateCommand();
+
+                    command.CommandText = @"select * from Filmes where title = @title";
+                    command.CommandType = System.Data.CommandType.Text;
+
+                    command.Parameters.Add(new SqlParameter("title", title))
+;
+                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
+                    {
+                        while (await dr.ReadAsync())
+                        {
+                            filme = new Filme()
+                            {
+                                id = dr.GetInt32(dr.GetOrdinal("id")),
+                                title = dr["title"] as string,
+                                description = dr["description"] as string,
+                                gender = dr["gender"] as string,
+                                releaseDate = dr["releaseDate"] as DateTime? ?? DateTime.MinValue,
+                                classification = dr.GetInt32(dr.GetOrdinal("classification")),
+                                rate = dr.GetInt32(dr.GetOrdinal("rate"))
+                            };
+                        }
+                    }
+
+                    await connection.CloseAsync();
+                }
+
+                return Ok(filme);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
         [HttpPut]
         [Route("{idFilme}")]
         public async Task<IActionResult> PutFilme([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idFilme, [FromBody] Filme filme)
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
                 {
                     await connection.OpenAsync();
 
@@ -127,6 +173,35 @@ namespace ApiMvc.Controllers
                 return BadRequest(error.Message);
             }
             
+        }
+
+        [HttpDelete("{idFilme}")]
+        public async Task<IActionResult> DeleteFilme([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idFilme)
+        {
+            try
+            {
+                using (SqlConnection connection = new(options.Value.MyConnection))
+                {
+                    await connection.OpenAsync();
+
+                    SqlCommand command = connection.CreateCommand();
+
+                    //O "@" antes do id significa que essa variável está nos parametros daquela SqlCommand.
+                    command.CommandText = @"delete from Filmes where id = @id";
+                    command.Parameters.Add(new SqlParameter("id", idFilme));
+                    command.CommandType = System.Data.CommandType.Text;
+
+                    await command.ExecuteNonQueryAsync();
+
+                    await connection.CloseAsync();
+                }
+
+                return Ok();
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
     }
 }
