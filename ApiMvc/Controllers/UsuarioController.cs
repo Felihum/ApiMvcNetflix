@@ -23,7 +23,7 @@ namespace ApiMvc.Controllers
                     return BadRequest("O usuario ja existe com esse cpf e email.");
                 }
 
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -59,7 +59,7 @@ namespace ApiMvc.Controllers
             {
                 Usuario usuario = null;
 
-                using (SqlConnection connection = new(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -110,7 +110,7 @@ namespace ApiMvc.Controllers
 
             try
             {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -154,7 +154,7 @@ namespace ApiMvc.Controllers
             {
                 Usuario usuario = null;
 
-                using (SqlConnection connection = new(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -204,7 +204,7 @@ namespace ApiMvc.Controllers
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -234,7 +234,7 @@ namespace ApiMvc.Controllers
         {
             try
             {
-                using (SqlConnection connection = new(options.Value.MyConnectionLTA))
+                using (SqlConnection connection = new(options.Value.MyConnectionHome))
                 {
                     await connection.OpenAsync();
 
@@ -247,7 +247,7 @@ namespace ApiMvc.Controllers
                     command.Parameters.Add(new SqlParameter("password", usuario.password));
                     command.Parameters.Add(new SqlParameter("birthday", usuario.birthday));
                     command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
-                    command.ExecuteNonQueryAsync();
+                    await command.ExecuteNonQueryAsync();
 
                     await connection.CloseAsync();
                 }
@@ -263,7 +263,7 @@ namespace ApiMvc.Controllers
 
         private async Task<bool> VerificarUsuarioExistente(IOptions<ConnectionStringOptions> options, string CPF, string Email)
         {
-            using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionLTA))
+            using (SqlConnection connection = new SqlConnection(options.Value.MyConnectionHome))
             {
                 await connection.OpenAsync();
 
