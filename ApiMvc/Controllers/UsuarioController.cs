@@ -197,6 +197,52 @@ namespace ApiMvc.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("findByEmail/{email}")]
+        public async Task<IActionResult> GetUsuarioByEmail([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string email)
+        {
+            Usuario usuario = null;
+
+            try
+            {
+                using (SqlConnection connection = new(options.Value.MyConnection))
+                {
+                    await connection.OpenAsync();
+                    SqlCommand command = connection.CreateCommand();
+
+                    command.CommandText = @"select * from Users where email = @email";
+
+                    command.Parameters.Add(new SqlParameter("email", email));
+
+                    command.CommandType = System.Data.CommandType.Text;
+
+                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
+                    {
+                        while (await dr.ReadAsync())
+                        {
+                            usuario = new Usuario()
+                            {
+                                id = dr.GetInt32(dr.GetOrdinal("id")),
+                                name = dr["name"] as string,
+                                cpf = dr["cpf"] as string,
+                                email = dr["email"] as string,
+                                password = dr["password"] as string,
+                                birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue
+                            };
+                        }
+                    }
+
+                    await connection.CloseAsync();
+                }
+
+                return Ok(usuario);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
         [HttpDelete]
         [Route("{idUsuario}")]
 
