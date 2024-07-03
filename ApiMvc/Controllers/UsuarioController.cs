@@ -29,7 +29,7 @@ namespace ApiMvc.Controllers
 
                     SqlCommand command = new SqlCommand();
                     command.Connection = connection;
-                    command.CommandText = @"insert into Users (cpf, email, password, birthday, idSubscription) values(@name, @cpf, @email, @password, @birthday, @idSubscription)";
+                    command.CommandText = @"insert into Users (cpf, email, password, birthday, idSubscription) values(@cpf, @email, @password, @birthday, @idSubscription)";
                     command.CommandType = System.Data.CommandType.Text;
 
                     command.Parameters.Add(new SqlParameter("cpf", usuario.cpf));
