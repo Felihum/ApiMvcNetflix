@@ -1,4 +1,6 @@
+using ApiMvc.Contexts;
 using ApiMvc.Options;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +23,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<ConnectionStringOptions>(options => builder.Configuration.GetSection("ConnectionStrings").Bind(options));
 builder.Services.AddOptions();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection")));
 
 var app = builder.Build();
 

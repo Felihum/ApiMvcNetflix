@@ -1,6 +1,8 @@
-﻿using ApiMvc.Models;
+﻿using ApiMvc.Contexts;
+using ApiMvc.Models;
 using ApiMvc.Options;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Data.SqlClient;
 
@@ -10,6 +12,13 @@ namespace ApiMvc.Controllers
     [ApiController]
     public class UsuarioController : Controller
     {
+        private readonly ApplicationDbContext context;
+
+        public UsuarioController(ApplicationDbContext context)
+        {
+            this.context = context;
+        }
+
         [HttpPost]
         [Route("")]
         public async Task<IActionResult> CreateUsuario([FromServices] IOptions<ConnectionStringOptions> options, Usuario usuario)
@@ -102,7 +111,7 @@ namespace ApiMvc.Controllers
             }
         }
 
-        [HttpGet]
+        /*[HttpGet]
         [Route("")]
         public async Task<IActionResult> GetAllUsuarios([FromServices] IOptions<ConnectionStringOptions> options)
         {
@@ -139,6 +148,20 @@ namespace ApiMvc.Controllers
                 }
 
                 return Ok(usuarios);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }*/
+
+        [HttpGet]
+        [Route("")]
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetAllUsuarios()
+        {
+            try
+            {
+                return await context.Usuarios.Include(u => u.subscription).ToListAsync();
             }
             catch (Exception error)
             {

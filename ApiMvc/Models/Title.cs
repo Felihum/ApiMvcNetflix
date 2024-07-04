@@ -1,4 +1,6 @@
-﻿namespace ApiMvc.Models
+﻿using System.Data.SqlTypes;
+
+namespace ApiMvc.Models
 {
     public class Title
     {

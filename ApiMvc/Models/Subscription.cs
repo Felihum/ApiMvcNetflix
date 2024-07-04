@@ -6,7 +6,8 @@ namespace ApiMvc.Models
     {
         public int id { get; internal set; }
         public string name { get; set; }
-        public SqlMoney value { get; set; }
+        public float value { get; set; }
         public string period { get; set; }
+        public ICollection<Usuario> Usuarios { get; set; }
     }
 }
