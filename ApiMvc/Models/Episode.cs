@@ -8,5 +8,6 @@
         public float duration { get; set; }
         public int number { get; set; }
         public int idSeason { get; set; }
+        public Season season { get; set; }
     }
 }

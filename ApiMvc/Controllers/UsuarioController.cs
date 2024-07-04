@@ -1,4 +1,5 @@
 ﻿using ApiMvc.Contexts;
+using ApiMvc.Dtos;
 using ApiMvc.Models;
 using ApiMvc.Options;
 using Microsoft.AspNetCore.Mvc;
@@ -21,42 +22,55 @@ namespace ApiMvc.Controllers
 
         [HttpPost]
         [Route("")]
-        public async Task<IActionResult> CreateUsuario([FromServices] IOptions<ConnectionStringOptions> options, Usuario usuario)
+        public async Task<IActionResult> CreateUsuario([FromBody] UsuarioDTO usuarioDTO)
         {
             try
             {
-                bool usuarioExiste = await VerificarUsuarioExistente(options, usuario.cpf, usuario.email);
+                var existingUser = await context.Users.FirstOrDefaultAsync(user => user.cpf == usuarioDTO.cpf || user.email == usuarioDTO.email);
 
-                if (usuarioExiste)
+                if (existingUser != null)
                 {
-                    return BadRequest("O usuario ja existe com esse cpf e email.");
+                    return BadRequest("Usuário já existente com o seguinte email ou cpf");
                 }
 
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
+                Usuario usuario = new Usuario
                 {
-                    await connection.OpenAsync();
+                    cpf = usuarioDTO.cpf,
+                    email = usuarioDTO.email,
+                    password = usuarioDTO.password,
+                    birthday = usuarioDTO.birthday,
+                    idSubscription = usuarioDTO.idSubscription,
 
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = @"insert into Users (cpf, email, password, birthday, idSubscription) values(@cpf, @email, @password, @birthday, @idSubscription)";
-                    command.CommandType = System.Data.CommandType.Text;
+                };
 
-                    command.Parameters.Add(new SqlParameter("cpf", usuario.cpf));
-                    command.Parameters.Add(new SqlParameter("email", usuario.email));
-                    command.Parameters.Add(new SqlParameter("password", usuario.password));
-                    command.Parameters.Add(new SqlParameter("birthday", usuario.birthday));
-                    command.Parameters.Add(new SqlParameter("idSubscription", usuario.idSubscription));
+                context.Users.Add(usuario);
 
-                    await command.ExecuteNonQueryAsync();
+                await context.SaveChangesAsync();
 
-                    await connection.CloseAsync();
+                if (usuarioDTO.profiles != null)
+                {
+                    foreach (var profileDTO in usuarioDTO.profiles)
+                    {
+                        Profile profile = new Profile
+                        {
+                            name = profileDTO.name,
+                            type = profileDTO.type,
+                            image = profileDTO.image,
+                            idUser = usuario.id
+                        };
+
+                        context.Profiles.Add(profile); // Adicionar perfil ao contexto
+                    }
+
+                    // Salvar perfis
+                    await context.SaveChangesAsync();
                 }
 
                 return Ok();
             }
             catch (Exception error)
             {
-                return BadRequest(error.Message);
+                return BadRequest(new { message = error.Message, innerException = error.InnerException?.Message });
             }
         }
 
@@ -161,7 +175,7 @@ namespace ApiMvc.Controllers
         {
             try
             {
-                return await context.Usuarios.Include(u => u.subscription).ToListAsync();
+                return await context.Users.ToListAsync();
             }
             catch (Exception error)
             {

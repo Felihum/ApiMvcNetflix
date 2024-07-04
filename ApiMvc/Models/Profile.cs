@@ -1,4 +1,6 @@
-﻿namespace ApiMvc.Models
+﻿using System.Text.Json.Serialization;
+
+namespace ApiMvc.Models
 {
     public class Profile
     {
@@ -7,5 +9,7 @@
         public string type { get; set; }
         public string image { get; set; }
         public int idUser { get; set; }
+        [JsonIgnore]
+        public Usuario usuario { get; set; }
     }
 }

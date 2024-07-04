@@ -5,5 +5,7 @@
         public int id { get; internal set; }
         public int number { get; set; }
         public int idTitle { get; set; }
+        public Title title { get; set; }
+        public ICollection<Episode> episodes { get; set; }
     }
 }

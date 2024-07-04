@@ -5,7 +5,7 @@ namespace ApiMvc.Contexts
 {
     public class ApplicationDbContext : DbContext
     {
-        public DbSet<Usuario> Usuarios { get; set; }
+        public DbSet<Usuario> Users { get; set; }
         public DbSet<Title> Titles { get; set; }
         public DbSet<Season> Seasons { get; set; }
         public DbSet<Episode> Episodes { get; set; }
@@ -32,6 +32,9 @@ namespace ApiMvc.Contexts
                       .WithMany(s => s.Usuarios)
                       .HasForeignKey(e => e.idSubscription)
                       .OnDelete(DeleteBehavior.Cascade);
+                /*entity.HasMany(e => e.profiles)
+                      .WithOne(p => p.usuario)
+                      .HasForeignKey(p => p.idUser);*/
             });
 
             modelBuilder.Entity<Subscription>(entity =>
@@ -40,9 +43,57 @@ namespace ApiMvc.Contexts
                 entity.Property(e => e.name).IsRequired().HasMaxLength(30);
                 entity.Property(e => e.value).IsRequired();
                 entity.Property(e => e.period).IsRequired().HasMaxLength(20);
-                entity.HasMany(s => s.Usuarios)
+                /*entity.HasMany(s => s.Usuarios)
                       .WithOne(u => u.subscription)
-                      .HasForeignKey(u => u.idSubscription);
+                      .HasForeignKey(u => u.idSubscription);*/
+            });
+
+            modelBuilder.Entity<Title>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.title).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.releaseYear).IsRequired();
+                entity.Property(e => e.gender).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.image);
+                entity.Property(e => e.description);
+                entity.Property(e => e.type).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.ageRating).IsRequired();
+            });
+
+            modelBuilder.Entity<Season>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.number).IsRequired();
+                entity.HasOne(e => e.title)
+                      .WithMany(t => t.seasons)
+                      .HasForeignKey(e => e.idTitle);
+                /*entity.HasMany(s => s.episodes)
+                      .WithOne(e => e.season)
+                      .HasForeignKey(e => e.idSeason);*/
+
+            });
+
+            modelBuilder.Entity<Episode>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.title).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.description).IsRequired();
+                entity.Property(e => e.duration).IsRequired();
+                entity.Property(e => e.number).IsRequired();
+                entity.HasOne(e => e.season)
+                      .WithMany(s => s.episodes)
+                      .HasForeignKey(e => e.idSeason);
+            });
+
+            modelBuilder.Entity<Profile>(entity =>
+            {
+                entity.HasKey(e => e.id);
+                entity.Property(e => e.name).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.type).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.image).IsRequired();
+                entity.HasOne(e => e.usuario)
+                      .WithMany(u => u.profiles)
+                      .HasForeignKey(e => e.idUser);
             });
         }
     }
