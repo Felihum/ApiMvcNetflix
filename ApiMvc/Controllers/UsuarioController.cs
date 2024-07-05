@@ -61,48 +61,13 @@ namespace ApiMvc.Controllers
 
         [HttpGet]
         [Route("{idUsuario}")]
-        public async Task<IActionResult> GetUsuarioById([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idUsuario)
+        public async Task<ActionResult<Usuario>> GetUsuarioById([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] int idUsuario)
         {
             try
             {
-                Usuario usuario = null;
-
-                using (SqlConnection connection = new(options.Value.MyConnection))
-                {
-                    await connection.OpenAsync();
-
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = @"select * from Users where id = @idUsuario";
-                    command.CommandType = System.Data.CommandType.Text;
-
-                    command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
-
-                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
-                    {
-                        while (await dr.ReadAsync())
-                        {
-                            usuario = new Usuario()
-                            {
-                                id = dr.GetInt32(dr.GetOrdinal("id")),
-                                cpf = dr["cpf"] as string,
-                                email = dr["email"] as string,
-                                password = dr["password"] as string,
-                                birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue,
-                                idSubscription = dr.GetInt32(dr.GetOrdinal("idSubscription"))
-                            };
-                        }
-                    }
-
-                    await connection.CloseAsync();
-                }
-
-                if (usuario == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(usuario);
+                return await context.Users.Include(u => u.subscription)
+                                          .Include(u => u.profiles)
+                                          .FirstOrDefaultAsync(u => u.id == idUsuario);
             }
             catch (Exception error)
             {
@@ -126,48 +91,11 @@ namespace ApiMvc.Controllers
 
         [HttpGet]
         [Route("findByCpf/{cpfUsuario}")]
-        public async Task<IActionResult> GetUsuarioByCpf([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string cpfUsuario)
+        public async Task<ActionResult<Usuario>> GetUsuarioByCpf([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string cpfUsuario)
         {
             try
             {
-                Usuario usuario = null;
-
-                using (SqlConnection connection = new(options.Value.MyConnection))
-                {
-                    await connection.OpenAsync();
-
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = @"select * from Users where cpf = @cpfUsuario";
-                    command.CommandType = System.Data.CommandType.Text;
-
-                    command.Parameters.Add(new SqlParameter("@cpfUsuario", cpfUsuario));
-
-                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
-                    {
-                        while (await dr.ReadAsync())
-                        {
-                            usuario = new Usuario()
-                            {
-                                id = dr.GetInt32(dr.GetOrdinal("id")),
-                                cpf = dr["cpf"] as string,
-                                email = dr["email"] as string,
-                                password = dr["password"] as string,
-                                birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue,
-                                idSubscription = dr.GetInt32(dr.GetOrdinal("idSubscription"))
-                            };
-                        }
-                    }
-
-                    await connection.CloseAsync();
-                }
-
-                if (usuario == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(usuario);
+                return await context.Users.Include(u => u.subscription).Include(u => u.profiles).FirstOrDefaultAsync(u => u.cpf == cpfUsuario);
             }
             catch (Exception error)
             {
@@ -177,43 +105,11 @@ namespace ApiMvc.Controllers
 
         [HttpGet]
         [Route("findByEmail/{email}")]
-        public async Task<IActionResult> GetUsuarioByEmail([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string email)
+        public async Task<ActionResult<Usuario>> GetUsuarioByEmail([FromServices] IOptions<ConnectionStringOptions> options, [FromRoute] string email)
         {
-            Usuario usuario = null;
-
             try
             {
-                using (SqlConnection connection = new(options.Value.MyConnection))
-                {
-                    await connection.OpenAsync();
-                    SqlCommand command = connection.CreateCommand();
-
-                    command.CommandText = @"select * from Users where email = @email";
-
-                    command.Parameters.Add(new SqlParameter("email", email));
-
-                    command.CommandType = System.Data.CommandType.Text;
-
-                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
-                    {
-                        while (await dr.ReadAsync())
-                        {
-                            usuario = new Usuario()
-                            {
-                                id = dr.GetInt32(dr.GetOrdinal("id")),
-                                cpf = dr["cpf"] as string,
-                                email = dr["email"] as string,
-                                password = dr["password"] as string,
-                                birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue,
-                                idSubscription = dr.GetInt32(dr.GetOrdinal("idSubscription"))
-                            };
-                        }
-                    }
-
-                    await connection.CloseAsync();
-                }
-
-                return Ok(usuario);
+                return await context.Users.Include(u => u.subscription).Include(u => u.profiles).FirstOrDefaultAsync(u => u.email == email);
             }
             catch (Exception error)
             {
@@ -228,21 +124,7 @@ namespace ApiMvc.Controllers
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
-                {
-                    await connection.OpenAsync();
-
-                    SqlCommand command = new();
-                    command.Connection = connection;
-                    command.CommandText = @"delete from Users where id = @idUsuario";
-
-                    command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
-
-                    command.ExecuteNonQueryAsync();
-
-                    await connection.CloseAsync();
-                }
-
+                await context.Users.Where(u => u.id == idUsuario).ExecuteDeleteAsync();
                 return Ok();
             }
             catch (Exception error)
@@ -254,59 +136,36 @@ namespace ApiMvc.Controllers
 
         [HttpPut]
         [Route("{idUsuario}")]
-        public async Task<IActionResult> PutUsuario([FromServices] IOptions<ConnectionStringOptions> options, [FromBody] Usuario usuario, [FromRoute] int idUsuario)
+        public async Task<IActionResult> PutUsuario([FromServices] IOptions<ConnectionStringOptions> options, [FromBody] UsuarioDTO usuarioDTO, [FromRoute] int idUsuario)
         {
             try
             {
-                using (SqlConnection connection = new(options.Value.MyConnection))
+                var user = await context.Users.FirstOrDefaultAsync(u => u.id == idUsuario);
+
+                if (user == null)
                 {
-                    await connection.OpenAsync();
-
-                    SqlCommand command = new();
-                    command.Connection = connection;
-                    command.CommandText = @"update Users set cpf = @cpf, email = @email, password = @password, birthday = @birthday, idSubscription = @idSubscription where id = @idUsuario";
-                    command.Parameters.Add(new SqlParameter("cpf", usuario.cpf));
-                    command.Parameters.Add(new SqlParameter("email", usuario.email));
-                    command.Parameters.Add(new SqlParameter("password", usuario.password));
-                    command.Parameters.Add(new SqlParameter("birthday", usuario.birthday));
-                    command.Parameters.Add(new SqlParameter("@idUsuario", idUsuario));
-                    command.Parameters.Add(new SqlParameter("@idSubscription", usuario.idSubscription));
-                    await command.ExecuteNonQueryAsync();
-
-                    await connection.CloseAsync();
+                    return NotFound("O Usuario não existe!");
                 }
+
+                var subscriptionObj = await context.Subscriptions.FirstOrDefaultAsync(sub => sub.id == usuarioDTO.idSubscription);
+                var userProfiles = await context.Profiles.Where(profile => profile.idUser == idUsuario).ToListAsync();
+
+                user.cpf = usuarioDTO.cpf;
+                user.email = usuarioDTO.email;
+                user.password = usuarioDTO.password;
+                user.birthday = usuarioDTO.birthday;
+                user.idSubscription = usuarioDTO.idSubscription;
+                user.subscription = subscriptionObj;
+                user.profiles = userProfiles;
+
+                context.Users.Update(user);
+                await context.SaveChangesAsync();
 
                 return Ok();
             }
             catch (Exception error)
             {
                 return BadRequest(error.Message);
-            }
-            
-        }
-
-        private async Task<bool> VerificarUsuarioExistente(IOptions<ConnectionStringOptions> options, string CPF, string Email)
-        {
-            using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
-            {
-                await connection.OpenAsync();
-
-                Usuario usuario = new Usuario();
-
-                SqlCommand command = new SqlCommand();
-                command.Connection = connection;
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"select Id from Users where cpf = @CPF or email = @Email";
-
-                command.Parameters.Add(new SqlParameter("Email", Email));
-                command.Parameters.Add(new SqlParameter("CPF", CPF));
-
-                int? id = (int?)command.ExecuteScalar();
-
-                await connection.CloseAsync();
-
-                return id != null;
-
             }
         }
     }
