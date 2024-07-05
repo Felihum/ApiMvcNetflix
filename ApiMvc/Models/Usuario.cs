@@ -10,9 +10,7 @@ namespace ApiMvc.Models
         public string password { get; set; }
         public DateTime birthday { get; set; }
         public int idSubscription { get; set; }
-        [JsonIgnore]
         public Subscription subscription { get; set; }
-        [JsonIgnore]
         public ICollection<Profile> profiles { get; set; }
     }
 }

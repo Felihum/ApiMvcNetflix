@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiMvc.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240704174438_NewMigration")]
-    partial class NewMigration
+    [Migration("20240705134109_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,9 +48,12 @@ namespace ApiMvc.Migrations
 
                     b.Property<string>("title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("id");
+
+                    b.HasIndex("idSeason");
 
                     b.ToTable("Episodes");
                 });
@@ -72,13 +75,17 @@ namespace ApiMvc.Migrations
 
                     b.Property<string>("name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("id");
+
+                    b.HasIndex("idUser");
 
                     b.ToTable("Profiles");
                 });
@@ -98,6 +105,8 @@ namespace ApiMvc.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("id");
+
+                    b.HasIndex("idTitle");
 
                     b.ToTable("Seasons");
                 });
@@ -145,7 +154,8 @@ namespace ApiMvc.Migrations
 
                     b.Property<string>("gender")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("image")
                         .IsRequired()
@@ -156,11 +166,13 @@ namespace ApiMvc.Migrations
 
                     b.Property<string>("title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("id");
 
@@ -203,6 +215,39 @@ namespace ApiMvc.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ApiMvc.Models.Episode", b =>
+                {
+                    b.HasOne("ApiMvc.Models.Season", "season")
+                        .WithMany("episodes")
+                        .HasForeignKey("idSeason")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("season");
+                });
+
+            modelBuilder.Entity("ApiMvc.Models.Profile", b =>
+                {
+                    b.HasOne("ApiMvc.Models.Usuario", "usuario")
+                        .WithMany("profiles")
+                        .HasForeignKey("idUser")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("usuario");
+                });
+
+            modelBuilder.Entity("ApiMvc.Models.Season", b =>
+                {
+                    b.HasOne("ApiMvc.Models.Title", "title")
+                        .WithMany("seasons")
+                        .HasForeignKey("idTitle")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("title");
+                });
+
             modelBuilder.Entity("ApiMvc.Models.Usuario", b =>
                 {
                     b.HasOne("ApiMvc.Models.Subscription", "subscription")
@@ -214,9 +259,24 @@ namespace ApiMvc.Migrations
                     b.Navigation("subscription");
                 });
 
+            modelBuilder.Entity("ApiMvc.Models.Season", b =>
+                {
+                    b.Navigation("episodes");
+                });
+
             modelBuilder.Entity("ApiMvc.Models.Subscription", b =>
                 {
                     b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("ApiMvc.Models.Title", b =>
+                {
+                    b.Navigation("seasons");
+                });
+
+            modelBuilder.Entity("ApiMvc.Models.Usuario", b =>
+                {
+                    b.Navigation("profiles");
                 });
 #pragma warning restore 612, 618
         }

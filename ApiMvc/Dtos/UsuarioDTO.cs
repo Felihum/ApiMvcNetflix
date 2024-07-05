@@ -8,6 +8,5 @@
         public string password { get; set; }
         public DateTime birthday { get; set; }
         public int idSubscription { get; set; }
-        public ICollection<ProfileDTO> profiles { get; set; }
     }
 }

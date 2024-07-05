@@ -33,6 +33,9 @@ namespace ApiMvc.Controllers
                     return BadRequest("Usuário já existente com o seguinte email ou cpf");
                 }
 
+                var subscriptionObj = await context.Subscriptions.FirstOrDefaultAsync(sub => sub.id == usuarioDTO.idSubscription);
+                var userProfiles = await context.Profiles.Where(profile => profile.idUser == usuarioDTO.id).ToListAsync();
+
                 Usuario usuario = new Usuario
                 {
                     cpf = usuarioDTO.cpf,
@@ -40,31 +43,13 @@ namespace ApiMvc.Controllers
                     password = usuarioDTO.password,
                     birthday = usuarioDTO.birthday,
                     idSubscription = usuarioDTO.idSubscription,
+                    profiles = userProfiles
 
                 };
 
                 context.Users.Add(usuario);
 
                 await context.SaveChangesAsync();
-
-                if (usuarioDTO.profiles != null)
-                {
-                    foreach (var profileDTO in usuarioDTO.profiles)
-                    {
-                        Profile profile = new Profile
-                        {
-                            name = profileDTO.name,
-                            type = profileDTO.type,
-                            image = profileDTO.image,
-                            idUser = usuario.id
-                        };
-
-                        context.Profiles.Add(profile); // Adicionar perfil ao contexto
-                    }
-
-                    // Salvar perfis
-                    await context.SaveChangesAsync();
-                }
 
                 return Ok();
             }
@@ -125,57 +110,13 @@ namespace ApiMvc.Controllers
             }
         }
 
-        /*[HttpGet]
-        [Route("")]
-        public async Task<IActionResult> GetAllUsuarios([FromServices] IOptions<ConnectionStringOptions> options)
-        {
-            List<Usuario> usuarios = new List<Usuario>();
-
-            try
-            {
-                using (SqlConnection connection = new SqlConnection(options.Value.MyConnection))
-                {
-                    await connection.OpenAsync();
-
-                    SqlCommand command = new SqlCommand();
-
-                    command.Connection = connection;
-                    command.CommandText = @"select * from Users";
-                    command.CommandType = System.Data.CommandType.Text;
-
-                    using (SqlDataReader dr = await command.ExecuteReaderAsync())
-                    {
-                        while (await dr.ReadAsync())
-                        {
-                            usuarios.Add(new Usuario() {
-                                id = dr.GetInt32(dr.GetOrdinal("id")),
-                                cpf = dr["cpf"] as string,
-                                email = dr["email"] as string,
-                                password = dr["password"] as string,
-                                birthday = dr["birthday"] as DateTime? ?? DateTime.MinValue,
-                                idSubscription = dr.GetInt32(dr.GetOrdinal("idSubscription"))
-                            });
-                        }
-                    }
-
-                    await connection.CloseAsync();
-                }
-
-                return Ok(usuarios);
-            }
-            catch (Exception error)
-            {
-                return BadRequest(error.Message);
-            }
-        }*/
-
         [HttpGet]
         [Route("")]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetAllUsuarios()
         {
             try
             {
-                return await context.Users.ToListAsync();
+                return await context.Users.Include(u => u.subscription).Include(u => u.profiles).ToListAsync();
             }
             catch (Exception error)
             {
