@@ -70,20 +70,66 @@ namespace ApiMvc.Controllers
             }
         }
 
-        /*public async Task<ActionResult> GetTitleByTitle()
+        [HttpGet("{title}")]
+        public async Task<ActionResult<Title>> GetTitleByTitle([FromRoute] string title)
         {
-
+            try
+            {
+                return await context.Titles.Include(t => t.seasons).ThenInclude(s => s.episodes).FirstOrDefaultAsync(t => t.title == title);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
 
-
-        public async Task<ActionResult> UpdateTitle()
+        [HttpPut("{idTitle}")]
+        public async Task<ActionResult> UpdateTitle([FromBody] TitleDTO titleDTO, [FromRoute] int idTitle)
         {
+            try
+            {
+                var title = await context.Titles.FirstOrDefaultAsync(t => t.id == idTitle);
+                var titleSeasons = await context.Seasons.Where(s => s.idTitle == idTitle).ToListAsync();
 
+                if (title == null)
+                {
+                    return NotFound("Esse Título não existe!");
+                }
+
+                title.title = titleDTO.title;
+                title.releaseYear = titleDTO.releaseYear;
+                title.gender = titleDTO.gender;
+                title.image = titleDTO.image;
+                title.description = titleDTO.description;
+                title.type = titleDTO.type;
+                title.ageRating = titleDTO.ageRating;
+                title.seasons = titleSeasons;
+
+                context.Titles.Update(title);
+
+                await context.SaveChangesAsync();
+                
+                return Ok();
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
         }
 
-        public async Task<ActionResult> DeleteTitle()
+        [HttpDelete("{idTitle}")]
+        public async Task<ActionResult> DeleteTitle([FromRoute] int idTitle)
         {
+            try
+            {
+                await context.Titles.Where(t => t.id == idTitle).ExecuteDeleteAsync();
 
-        }*/
+                return Ok();
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
     }
 }

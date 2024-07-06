@@ -65,5 +65,31 @@ namespace ApiMvc.Controllers
                 return BadRequest(error.Message);
             }
         }
+
+        [HttpGet("{idSeason}")]
+        public async Task<ActionResult<Season>> GetSeasonById([FromRoute] int idSeason)
+        {
+            try
+            {
+                return await context.Seasons.FirstOrDefaultAsync(s => s.id == idSeason);
+            } 
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
+        /*[HttpPut("{idSeason}")]
+        public async Task<ActionResult> UpdateSeason([FromRoute] int idSeason, [FromBody] SeasonDTO seasonDTO)
+        {
+            try
+            {
+
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }*/
     }
 }
