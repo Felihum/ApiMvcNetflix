@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using ApiMvc.Models;
 
-namespace ApiMvc.Models
+namespace ApiMvc.Dtos
 {
-    public class Episode
+    public class EpisodeDTO
     {
         public int id { get; internal set; }
         public string title { get; set; }
@@ -10,7 +10,5 @@ namespace ApiMvc.Models
         public float duration { get; set; }
         public int number { get; set; }
         public int idSeason { get; set; }
-        [JsonIgnore]
-        public Season season { get; set; }
     }
 }
