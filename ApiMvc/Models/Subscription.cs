@@ -10,6 +10,6 @@ namespace ApiMvc.Models
         public float value { get; set; }
         public string period { get; set; }
         [JsonIgnore]
-        public ICollection<Usuario> Usuarios { get; set; }
+        public ICollection<Usuario> users { get; set; }
     }
 }

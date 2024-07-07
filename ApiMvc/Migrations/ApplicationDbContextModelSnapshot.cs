@@ -248,9 +248,9 @@ namespace ApiMvc.Migrations
             modelBuilder.Entity("ApiMvc.Models.Usuario", b =>
                 {
                     b.HasOne("ApiMvc.Models.Subscription", "subscription")
-                        .WithMany("Usuarios")
+                        .WithMany("users")
                         .HasForeignKey("idSubscription")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("subscription");
@@ -263,7 +263,7 @@ namespace ApiMvc.Migrations
 
             modelBuilder.Entity("ApiMvc.Models.Subscription", b =>
                 {
-                    b.Navigation("Usuarios");
+                    b.Navigation("users");
                 });
 
             modelBuilder.Entity("ApiMvc.Models.Title", b =>

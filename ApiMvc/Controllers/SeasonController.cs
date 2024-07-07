@@ -79,17 +79,49 @@ namespace ApiMvc.Controllers
             }
         }
 
-        /*[HttpPut("{idSeason}")]
+        [HttpPut("{idSeason}")]
         public async Task<ActionResult> UpdateSeason([FromRoute] int idSeason, [FromBody] SeasonDTO seasonDTO)
         {
             try
             {
+                var season = await context.Seasons.FirstOrDefaultAsync(s => s.id == idSeason);
 
+                if (season == null)
+                {
+                    return NotFound("Essa temporada não existe!");
+                }
+
+                var seasonTitle = await context.Titles.FirstOrDefaultAsync(t => t.id == seasonDTO.idTitle);
+
+                season.number = seasonDTO.number;
+                season.idTitle = seasonDTO.idTitle;
+                season.title = seasonTitle;
+
+                context.Seasons.Update(season);
+
+                await context.SaveChangesAsync();
+
+                return Ok(season);
             }
             catch (Exception error)
             {
                 return BadRequest(error.Message);
             }
-        }*/
+        }
+
+        [HttpDelete("{idSeason}")]
+        public async Task<ActionResult> DeleteSeason([FromRoute] int idSeason)
+        {
+            try
+            {
+                await context.Seasons.Where(s => s.id == idSeason).ExecuteDeleteAsync();
+
+                return Ok();
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
     }
 }

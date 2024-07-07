@@ -65,5 +65,54 @@ namespace ApiMvc.Controllers
                 return BadRequest(error.Message);
             }
         }
+
+        [HttpPut("{idEpisode}")]
+        public async Task<ActionResult> UpdateEpisode([FromRoute] int idEpisode, [FromBody] EpisodeDTO episodeDTO)
+        {
+            try
+            {
+                var episode = await context.Episodes.FirstOrDefaultAsync(e => e.id == idEpisode);
+
+                if (episode == null)
+                {
+                    return NotFound("Esse episódio não existe!");
+                }
+
+                var episodeSeason = await context.Seasons.FirstOrDefaultAsync(s => s.id == episodeDTO.idSeason);
+
+                episode.title = episodeDTO.title;
+                episode.description = episodeDTO.description;
+                episode.number = episodeDTO.number;
+                episode.duration = episodeDTO.duration;
+                episode.idSeason = episodeDTO.idSeason;
+                episode.season = episodeSeason;
+
+                context.Episodes.Update(episode);
+
+                await context.SaveChangesAsync();
+
+                return Ok(episode);
+                
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
+        [HttpDelete("{idEpisode}")]
+        public async Task<ActionResult> DeleteEpisode([FromRoute] int idEpisode)
+        {
+            try
+            {
+                await context.Episodes.Where(e => e.id == idEpisode).ExecuteDeleteAsync();
+
+                return Ok();
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
     }
 }

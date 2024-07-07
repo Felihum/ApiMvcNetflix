@@ -161,7 +161,7 @@ namespace ApiMvc.Controllers
                 context.Users.Update(user);
                 await context.SaveChangesAsync();
 
-                return Ok();
+                return Ok(user);
             }
             catch (Exception error)
             {

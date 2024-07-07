@@ -109,7 +109,7 @@ namespace ApiMvc.Controllers
 
                 await context.SaveChangesAsync();
                 
-                return Ok();
+                return Ok(title);
             }
             catch (Exception error)
             {

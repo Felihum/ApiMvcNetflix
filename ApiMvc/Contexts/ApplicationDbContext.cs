@@ -29,12 +29,13 @@ namespace ApiMvc.Contexts
                 entity.Property(e => e.password).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.birthday).IsRequired();
                 entity.HasOne(e => e.subscription)
-                      .WithMany(s => s.Usuarios)
+                      .WithMany(s => s.users)
                       .HasForeignKey(e => e.idSubscription)
                       .OnDelete(DeleteBehavior.Cascade);
                 /*entity.HasMany(e => e.profiles)
                       .WithOne(p => p.usuario)
-                      .HasForeignKey(p => p.idUser);*/
+                      .HasForeignKey(p => p.idUser)
+                      .OnDelete(DeleteBehavior.Cascade);*/
             });
 
             modelBuilder.Entity<Subscription>(entity =>

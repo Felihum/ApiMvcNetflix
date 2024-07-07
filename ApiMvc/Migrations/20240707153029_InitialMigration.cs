@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ApiMvc.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,7 +55,7 @@ namespace ApiMvc.Migrations
                     email = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
                     password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     birthday = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    idSubscription = table.Column<int>(type: "int", nullable: false)
+                    idSubscription = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -65,7 +65,7 @@ namespace ApiMvc.Migrations
                         column: x => x.idSubscription,
                         principalTable: "Subscriptions",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(

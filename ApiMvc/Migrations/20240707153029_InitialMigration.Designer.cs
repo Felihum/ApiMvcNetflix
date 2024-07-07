@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiMvc.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240705134109_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20240707153029_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -251,9 +251,9 @@ namespace ApiMvc.Migrations
             modelBuilder.Entity("ApiMvc.Models.Usuario", b =>
                 {
                     b.HasOne("ApiMvc.Models.Subscription", "subscription")
-                        .WithMany("Usuarios")
+                        .WithMany("users")
                         .HasForeignKey("idSubscription")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("subscription");
@@ -266,7 +266,7 @@ namespace ApiMvc.Migrations
 
             modelBuilder.Entity("ApiMvc.Models.Subscription", b =>
                 {
-                    b.Navigation("Usuarios");
+                    b.Navigation("users");
                 });
 
             modelBuilder.Entity("ApiMvc.Models.Title", b =>
