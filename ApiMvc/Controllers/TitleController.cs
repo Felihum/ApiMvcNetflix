@@ -39,6 +39,7 @@ namespace ApiMvc.Controllers
                     releaseYear = titleDTO.releaseYear,
                     gender = titleDTO.gender,
                     image = titleDTO.image,
+                    logo = titleDTO.logo,
                     description = titleDTO.description,
                     type = titleDTO.type,
                     ageRating = titleDTO.ageRating,
@@ -100,6 +101,7 @@ namespace ApiMvc.Controllers
                 title.releaseYear = titleDTO.releaseYear;
                 title.gender = titleDTO.gender;
                 title.image = titleDTO.image;
+                title.logo = titleDTO.logo;
                 title.description = titleDTO.description;
                 title.type = titleDTO.type;
                 title.ageRating = titleDTO.ageRating;

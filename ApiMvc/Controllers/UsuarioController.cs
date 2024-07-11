@@ -42,6 +42,7 @@ namespace ApiMvc.Controllers
                     email = usuarioDTO.email,
                     password = usuarioDTO.password,
                     birthday = usuarioDTO.birthday,
+                    role = usuarioDTO.role,
                     idSubscription = usuarioDTO.idSubscription,
                     profiles = userProfiles
 
@@ -154,6 +155,7 @@ namespace ApiMvc.Controllers
                 user.email = usuarioDTO.email;
                 user.password = usuarioDTO.password;
                 user.birthday = usuarioDTO.birthday;
+                user.role = usuarioDTO.role;
                 user.idSubscription = usuarioDTO.idSubscription;
                 user.subscription = subscriptionObj;
                 user.profiles = userProfiles;

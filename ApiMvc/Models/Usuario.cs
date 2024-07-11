@@ -9,6 +9,7 @@ namespace ApiMvc.Models
         public string email { get; set; }
         public string password { get; set; }
         public DateTime birthday { get; set; }
+        public string role { get; set; }
         public int? idSubscription { get; set; }
         public Subscription subscription { get; set; }
         public ICollection<Profile> profiles { get; set; }

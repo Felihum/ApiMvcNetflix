@@ -28,6 +28,7 @@ namespace ApiMvc.Contexts
                 entity.Property(e => e.email).IsRequired().HasMaxLength(40);
                 entity.Property(e => e.password).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.birthday).IsRequired();
+                entity.Property(e => e.role).IsRequired();
                 entity.HasOne(e => e.subscription)
                       .WithMany(s => s.users)
                       .HasForeignKey(e => e.idSubscription)
@@ -55,7 +56,8 @@ namespace ApiMvc.Contexts
                 entity.Property(e => e.title).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.releaseYear).IsRequired();
                 entity.Property(e => e.gender).IsRequired().HasMaxLength(20);
-                entity.Property(e => e.image);
+                entity.Property(e => e.image).IsRequired();
+                entity.Property(e => e.logo);
                 entity.Property(e => e.description);
                 entity.Property(e => e.type).IsRequired().HasMaxLength(10);
                 entity.Property(e => e.ageRating).IsRequired();
@@ -80,6 +82,7 @@ namespace ApiMvc.Contexts
                 entity.Property(e => e.title).IsRequired().HasMaxLength(100);
                 entity.Property(e => e.description).IsRequired();
                 entity.Property(e => e.duration).IsRequired();
+                entity.Property(e => e.image).IsRequired();
                 entity.Property(e => e.number).IsRequired();
                 entity.HasOne(e => e.season)
                       .WithMany(s => s.episodes)

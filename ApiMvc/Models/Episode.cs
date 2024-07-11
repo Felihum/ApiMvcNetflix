@@ -8,6 +8,7 @@ namespace ApiMvc.Models
         public string title { get; set; }
         public string description { get; set; }
         public float duration { get; set; }
+        public string image { get; set; }
         public int number { get; set; }
         public int idSeason { get; set; }
         [JsonIgnore]

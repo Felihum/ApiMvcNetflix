@@ -37,6 +37,7 @@ namespace ApiMvc.Controllers
                     description = episodeDTO.description,
                     duration = episodeDTO.duration,
                     number = episodeDTO.number,
+                    image = episodeDTO.image,
                     idSeason = episodeDTO.idSeason,
                     season = episodeSeason
                 };
@@ -84,6 +85,7 @@ namespace ApiMvc.Controllers
                 episode.description = episodeDTO.description;
                 episode.number = episodeDTO.number;
                 episode.duration = episodeDTO.duration;
+                episode.image = episodeDTO.image;
                 episode.idSeason = episodeDTO.idSeason;
                 episode.season = episodeSeason;
 
