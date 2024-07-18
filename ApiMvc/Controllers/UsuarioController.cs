@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Data.SqlClient;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
 
 namespace ApiMvc.Controllers
 {
@@ -14,10 +18,12 @@ namespace ApiMvc.Controllers
     public class UsuarioController : Controller
     {
         private readonly ApplicationDbContext context;
+        private readonly IConfiguration configuration;
 
-        public UsuarioController(ApplicationDbContext context)
+        public UsuarioController(ApplicationDbContext context, IConfiguration configuration)
         {
             this.context = context;
+            this.configuration = configuration;
         }
 
         [HttpPost]
@@ -164,6 +170,42 @@ namespace ApiMvc.Controllers
                 await context.SaveChangesAsync();
 
                 return Ok(user);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDTO)
+        {
+            try
+            {
+                var usuario = await context.Users.FirstOrDefaultAsync(u => u.email == loginDTO.email);
+
+                if (usuario == null || usuario.password != loginDTO.password)
+                {
+                    return Unauthorized("Invalid email or password");
+                }
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(configuration["JwtConfig:Secret"]);
+                var tokenDescriptor = new SecurityTokenDescriptor
+                {
+                    Subject = new ClaimsIdentity(new[]
+                    {
+                        new Claim(ClaimTypes.NameIdentifier, usuario.id.ToString()),
+                        new Claim(ClaimTypes.Email, usuario.email),
+                        new Claim(ClaimTypes.Role, usuario.role)
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(1),
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+                var tokenString = tokenHandler.WriteToken(token);
+
+                return Ok(new { Token = tokenString });
             }
             catch (Exception error)
             {
