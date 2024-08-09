@@ -14,5 +14,6 @@ namespace ApiMvc.Dtos
         public string detailedDescription { get; set; }
         public string type { get; set; }
         public int ageRating { get; set; }
+        public string duration { get; set; }
     }
 }

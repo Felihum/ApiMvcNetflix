@@ -44,6 +44,7 @@ namespace ApiMvc.Controllers
                     detailedDescription = titleDTO.detailedDescription,
                     type = titleDTO.type,
                     ageRating = titleDTO.ageRating,
+                    duration = titleDTO.duration,
                     seasons = titleSeasons
                 };
 
@@ -108,6 +109,7 @@ namespace ApiMvc.Controllers
                 title.type = titleDTO.type;
                 title.ageRating = titleDTO.ageRating;
                 title.seasons = titleSeasons;
+                title.duration = titleDTO.duration;
 
                 context.Titles.Update(title);
 

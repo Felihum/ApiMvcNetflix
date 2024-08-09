@@ -14,6 +14,7 @@ namespace ApiMvc.Models
         public string detailedDescription { get; set; }
         public string type { get; set; }
         public int ageRating { get; set; }
+        public string duration { get; set; }
         public ICollection<Season> seasons { get; set; }
     }
 }
