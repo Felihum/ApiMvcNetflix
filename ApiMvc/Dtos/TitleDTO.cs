@@ -11,6 +11,7 @@ namespace ApiMvc.Dtos
         public string image { get; set; }
         public string logo { get; set; }
         public string description { get; set; }
+        public string detailedDescription { get; set; }
         public string type { get; set; }
         public int ageRating { get; set; }
     }

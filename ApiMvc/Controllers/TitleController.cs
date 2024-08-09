@@ -41,6 +41,7 @@ namespace ApiMvc.Controllers
                     image = titleDTO.image,
                     logo = titleDTO.logo,
                     description = titleDTO.description,
+                    detailedDescription = titleDTO.detailedDescription,
                     type = titleDTO.type,
                     ageRating = titleDTO.ageRating,
                     seasons = titleSeasons
@@ -103,6 +104,7 @@ namespace ApiMvc.Controllers
                 title.image = titleDTO.image;
                 title.logo = titleDTO.logo;
                 title.description = titleDTO.description;
+                title.detailedDescription = titleDTO.detailedDescription;
                 title.type = titleDTO.type;
                 title.ageRating = titleDTO.ageRating;
                 title.seasons = titleSeasons;
