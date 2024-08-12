@@ -15,6 +15,7 @@ namespace ApiMvc.Models
         public string type { get; set; }
         public int ageRating { get; set; }
         public string duration { get; set; }
+        public string trailer { get; set; }
         public ICollection<Season> seasons { get; set; }
     }
 }

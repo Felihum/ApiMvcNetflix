@@ -15,5 +15,6 @@ namespace ApiMvc.Dtos
         public string type { get; set; }
         public int ageRating { get; set; }
         public string duration { get; set; }
+        public string trailer { get; set; }
     }
 }

@@ -45,6 +45,7 @@ namespace ApiMvc.Controllers
                     type = titleDTO.type,
                     ageRating = titleDTO.ageRating,
                     duration = titleDTO.duration,
+                    trailer = titleDTO.trailer,
                     seasons = titleSeasons
                 };
 
@@ -73,12 +74,25 @@ namespace ApiMvc.Controllers
             }
         }
 
-        [HttpGet("{title}")]
+        /*[HttpGet("{title}")]
         public async Task<ActionResult<Title>> GetTitleByTitle([FromRoute] string title)
         {
             try
             {
                 return await context.Titles.Include(t => t.seasons).ThenInclude(s => s.episodes).FirstOrDefaultAsync(t => t.title == title);
+            }
+            catch (Exception error)
+            {
+                return BadRequest(error.Message);
+            }
+        }*/
+
+        [HttpGet("{idTitle}")]
+        public async Task<ActionResult<Title>> GetTitleById([FromRoute] int idTitle)
+        {
+            try
+            {
+                return await context.Titles.Include(t => t.seasons).ThenInclude(s => s.episodes).FirstOrDefaultAsync(t => t.id == idTitle);
             }
             catch (Exception error)
             {
@@ -110,6 +124,7 @@ namespace ApiMvc.Controllers
                 title.ageRating = titleDTO.ageRating;
                 title.seasons = titleSeasons;
                 title.duration = titleDTO.duration;
+                title.trailer = titleDTO.trailer;
 
                 context.Titles.Update(title);
 
